@@ -1,0 +1,126 @@
+{
+  "log": {
+    "level": "warn",
+    "output": ""
+  },
+  "dns": {
+    "servers": [
+      {
+        "address": "8.8.8.8",
+        "strategy": "prefer_ipv4"
+      },
+      {
+        "address": "1.1.1.1",
+        "strategy": "prefer_ipv4"
+      }
+    ],
+    "rules": [
+      {
+        "domain_suffix": [".local"],
+        "server": "localhost"
+      }
+    ],
+    "tag": "dns"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "port": 10808,
+      "sniff": {
+        "enabled": true,
+        "override_destination": true,
+        "domains": ["http", "tls"]
+      }
+    },
+    {
+      "type": "http",
+      "tag": "http-in",
+      "listen": "127.0.0.1",
+      "port": 10809,
+      "sniff": {
+        "enabled": true,
+        "override_destination": true,
+        "domains": ["http", "tls"]
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "31.59.102.251",
+      "server_port": 443,
+      "uuid": "ae9bbcc4-9864-46f4-b04c-3f363bd6fd25",
+      "flow": "",
+      "transport": {
+        "type": "tcp"
+      },
+      "tls": {
+        "enabled": true,
+        "fingerprint": "chrome",
+        "server_name": "github.com",
+        "reality": {
+          "enabled": true,
+          "public_key": "spiduMm3kpciFyKBA2ISALGV8YQszmZcH4vpp6aKf1g",
+          "short_id": "3f66c8bf"
+        }
+      }
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "outbound": "block",
+        "domain_rule": {
+          "type": "geosite",
+          "domain": ["category-ads-all"]
+        }
+      },
+      {
+        "outbound": "proxy",
+        "geoip": ["telegram"]
+      },
+      {
+        "outbound": "proxy",
+        "domain_rule": {
+          "type": "geosite",
+          "domain": [
+            "anime",
+            "anthropic",
+            "artstation",
+            "discord",
+            "google-gemini",
+            "instagram",
+            "linkedin",
+            "meta",
+            "microsoft",
+            "notion",
+            "openai",
+            "soundcloud",
+            "speedtest",
+            "spotify",
+            "tiktok",
+            "twitch",
+            "twitter",
+            "youtube"
+          ]
+        }
+      },
+      {
+        "outbound": "direct"
+      }
+    ],
+    "final": "direct",
+    "auto_route": true
+  }
+}
